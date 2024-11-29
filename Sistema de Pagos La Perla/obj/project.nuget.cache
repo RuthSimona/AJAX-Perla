@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gKwJxBU+wEM=",
+  "dgSpecHash": "cpe4ZoBuvCY=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Ruth Simona\\Desktop\\La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
+  "projectFilePath": "C:\\Users\\Ruth Simona\\Desktop\\Gestion La Perla\\AJAX-Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Ruth Simona\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Ruth Simona\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

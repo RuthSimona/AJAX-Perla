@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sistema_de_Pagos_La_Perla.Data;
 
@@ -11,9 +12,11 @@ using Sistema_de_Pagos_La_Perla.Data;
 namespace Sistema_de_Pagos_La_Perla.Migrations
 {
     [DbContext(typeof(GestionPagosContext))]
-    partial class GestionPagosContextModelSnapshot : ModelSnapshot
+    [Migration("20241129173636_AddFechaAsignacionToAsignaciones")]
+    partial class AddFechaAsignacionToAsignaciones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

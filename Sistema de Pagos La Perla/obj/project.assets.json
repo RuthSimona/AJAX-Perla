@@ -4780,11 +4780,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Ruth Simona\\Desktop\\La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
+      "projectUniqueName": "C:\\Users\\Ruth Simona\\Desktop\\Gestion La Perla\\AJAX-Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
       "projectName": "Sistema de Pagos La Perla",
-      "projectPath": "C:\\Users\\Ruth Simona\\Desktop\\La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
+      "projectPath": "C:\\Users\\Ruth Simona\\Desktop\\Gestion La Perla\\AJAX-Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla.csproj",
       "packagesPath": "C:\\Users\\Ruth Simona\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Ruth Simona\\Desktop\\La Perla\\Sistema de Pagos La Perla\\Sistema de Pagos La Perla\\obj\\",
+      "outputPath": "C:\\Users\\Ruth Simona\\Desktop\\Gestion La Perla\\AJAX-Perla\\Sistema de Pagos La Perla\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Ruth Simona\\AppData\\Roaming\\NuGet\\NuGet.Config",

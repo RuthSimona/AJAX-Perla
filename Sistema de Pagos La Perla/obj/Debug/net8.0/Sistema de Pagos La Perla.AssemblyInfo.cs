@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Sistema de Pagos La Perla")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+747787d1c63ba0bd496c5b15d367f157cf22d915")]
 [assembly: System.Reflection.AssemblyProductAttribute("Sistema de Pagos La Perla")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Sistema de Pagos La Perla")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

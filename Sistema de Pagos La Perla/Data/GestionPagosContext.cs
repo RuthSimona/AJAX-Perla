@@ -55,6 +55,7 @@ namespace Sistema_de_Pagos_La_Perla.Data
             {
                 entity.ToTable("Asignaciones");
                 entity.HasKey(a => a.AsignacionID);
+                entity.Property(a => a.FechaAsignacion).IsRequired(); // Configuración explícita
                 entity.Property(a => a.Tarea).IsRequired().HasMaxLength(200);
                 entity.Property(a => a.Tarifa).IsRequired().HasColumnType("DECIMAL(10,2)");
                 entity.Property(a => a.Turno).IsRequired().HasMaxLength(50);
@@ -64,6 +65,7 @@ namespace Sistema_de_Pagos_La_Perla.Data
                       .HasForeignKey(a => a.FundoID);
             });
 
+
             // Configuración Asistencias
             modelBuilder.Entity<Asistencia>(entity =>
             {
@@ -72,14 +74,11 @@ namespace Sistema_de_Pagos_La_Perla.Data
                 entity.Property(a => a.FechaAsistencia).IsRequired();
                 entity.Property(a => a.UsuarioRegistro).HasMaxLength(50);
                 entity.Property(a => a.Estado).IsRequired().HasMaxLength(10);
+
                 entity.HasOne(a => a.Asignacion)
                       .WithMany(asig => asig.Asistencias)
                       .HasForeignKey(a => a.AsignacionID)
-                      .OnDelete(DeleteBehavior.Restrict);
-                entity.HasOne(a => a.Trabajador)
-                      .WithMany(trab => trab.Asistencias)
-                      .HasForeignKey(a => a.TrabajadorID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.Restrict); // Esta configuración evita borrados en cascada
             });
         }
     }

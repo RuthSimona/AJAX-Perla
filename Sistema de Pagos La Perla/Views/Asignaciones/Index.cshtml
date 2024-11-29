@@ -21,11 +21,11 @@
         <table id="tbAsignaciones" class="table table-striped w-100">
             <thead>
                 <tr>
+                    <th>Fecha de Asignación</th>
                     <th>Tarea</th>
                     <th>Fundo</th>
                     <th>Turno</th>
                     <th>Tarifa</th>
-                    <th>Fecha de Asignación</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -46,10 +46,18 @@
             <div class="modal-body">
                 <form id="formAsignacion" novalidate>
                     <input id="AsignacionID" type="hidden" value="0" />
+
+                    <!-- Mover Fecha de Asignación antes de Tarea -->
+                    <div class="mb-3">
+                        <label for="FechaAsignacion" class="form-label">Fecha de Asignación</label>
+                        <input type="date" id="FechaAsignacion" class="form-control" required />
+                    </div>
+
                     <div class="mb-3">
                         <label for="Tarea" class="form-label">Tarea</label>
                         <input type="text" id="Tarea" class="form-control" required />
                     </div>
+
                     <div class="mb-3">
                         <label for="FundoID" class="form-label">Fundo</label>
                         <div class="input-group">
@@ -58,22 +66,22 @@
                         </div>
                         <input type="hidden" id="FundoID" />
                     </div>
+
                     <div class="mb-3">
                         <label for="Turno" class="form-label">Turno</label>
                         <input type="text" id="Turno" class="form-control" required />
                     </div>
+
                     <div class="mb-3">
                         <label for="Tarifa" class="form-label">Tarifa</label>
                         <input type="number" id="Tarifa" class="form-control" required />
                     </div>
-                    <div class="mb-3">
-                        <label for="FechaAsignacion" class="form-label">Fecha de Asignación</label>
-                        <input type="date" id="FechaAsignacion" class="form-control" required />
-                    </div>
+
                     <div class="mb-3">
                         <label for="Descripcion" class="form-label">Descripción</label>
                         <textarea id="Descripcion" class="form-control"></textarea>
                     </div>
+
                     <div class="mb-3">
                         <label for="Estado" class="form-label">Estado</label>
                         <select id="Estado" class="form-control">
@@ -127,11 +135,11 @@
                     datatype: "json"
                 },
                 columns: [
+                    { data: "fechaAsignacion" },
                     { data: "tarea" },
                     { data: "fundoNombre" },
                     { data: "turno" },
                     { data: "tarifa" },
-                    { data: "fechaAsignacion" },
                     {
                         data: "estado",
                         render: function (data) {
@@ -144,8 +152,8 @@
                         data: null,
                         render: function () {
                             return `
-                                        <button class="btn btn-primary btn-sm btn-editar">Editar</button>
-                                        <button class="btn btn-danger btn-sm btn-eliminar">Eliminar</button>`;
+                                                <button class="btn btn-primary btn-sm btn-editar">Editar</button>
+                                                <button class="btn btn-danger btn-sm btn-eliminar">Eliminar</button>`;
                         }
                     }
                 ],
@@ -189,12 +197,12 @@
 
             $("#btnGuardar").on("click", function () {
                 var asignacion = {
+                    FechaAsignacion: $("#FechaAsignacion").val(),
                     AsignacionID: $("#AsignacionID").val(),
                     Tarea: $("#Tarea").val(),
                     FundoID: $("#FundoID").val(),
                     Turno: $("#Turno").val(),
                     Tarifa: $("#Tarifa").val(),
-                    FechaAsignacion: $("#FechaAsignacion").val(),
                     Descripcion: $("#Descripcion").val(),
                     Estado: $("#Estado").val() === "true" ? true : false
                 };
@@ -221,14 +229,14 @@
 
         function limpiarFormulario() {
             $("#AsignacionID").val(0);
+            $("#FechaAsignacion").val(""); // Limpiar Fecha de Asignación primero
             $("#Tarea").val("");
             $("#FundoID").val("");
             $("#FundoNombre").val("");
             $("#Turno").val("");
             $("#Tarifa").val("");
-            $("#FechaAsignacion").val("");
             $("#Descripcion").val("");
             $("#Estado").val("true");
         }
     </script>
-    }
+}

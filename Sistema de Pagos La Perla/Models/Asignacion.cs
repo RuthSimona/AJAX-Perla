@@ -3,6 +3,7 @@
 public class Asignacion
 {
     public int AsignacionID { get; set; }
+    public DateTime FechaAsignacion { get; set; }
     public int FundoID { get; set; }
     public Fundo Fundo { get; set; } = new Fundo();
     public string Tarea { get; set; } = string.Empty;
@@ -12,7 +13,7 @@ public class Asignacion
     public string Turno { get; set; } = string.Empty;
     public string UsuarioRegistro { get; set; } = string.Empty;
     public DateTime FechaRegistro { get; set; } = DateTime.Now;
-    public DateTime FechaAsignacion { get; set; }
     public bool Estado { get; set; } = true;
+    [Newtonsoft.Json.JsonIgnore] // Ignorar en serialización para evitar problemas
     public ICollection<Asistencia> Asistencias { get; set; } = new List<Asistencia>();
 }
