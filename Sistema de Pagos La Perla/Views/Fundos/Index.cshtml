@@ -1,0 +1,193 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Fundos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Gestión de Fundos</h2>
+
+<div class="card">
+    <div class="card-header">
+        <button id="btnNuevo" class="btn btn-success">Nuevo Fundo</button>
+    </div>
+    <div class="card-body">
+        <table id="tbFundos" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Ubicación</th>
+                    <th>Contacto</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Fecha de Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Fundos -->
+<div id="modalFundo" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gestión de Fundo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formFundo">
+                    <input type="hidden" id="FundoID" value="0" />
+                    <div class="mb-3">
+                        <label for="NombreFundo" class="form-label">Nombre del Fundo</label>
+                        <input type="text" id="NombreFundo" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" id="Ubicacion" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Contacto" class="form-label">Contacto</label>
+                        <input type="text" id="Contacto" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Telefono" class="form-label">Teléfono</label>
+                        <input type="text" id="Telefono" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Estado" class="form-label">Estado</label>
+                        <select id="Estado" class="form-control">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            var tabla = $("#tbFundos").DataTable({
+                ajax: {
+                    url: "/Fundos/ListaFundos",
+                    type: "GET",
+                    datatype: "json"
+                },
+                columns: [
+                    { data: "nombreFundo" },
+                    { data: "ubicacion" },
+                    { data: "contacto" },
+                    { data: "telefono" },
+                    { data: "estado" },
+                    { data: "fechaRegistro" },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return `
+                                        <button class="btn btn-sm btn-primary btn-editar">Editar</button>
+                                        <button class="btn btn-sm btn-danger btn-eliminar">Eliminar</button>
+                                    `;
+                        },
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+                }
+            });
+
+            $("#btnNuevo").on("click", function () {
+                limpiarFormulario();
+                $("#modalFundo").modal("show");
+            });
+
+            $("#btnGuardar").on("click", function () {
+                var fundo = {
+                    FundoID: $("#FundoID").val(),
+                    NombreFundo: $("#NombreFundo").val(),
+                    Ubicacion: $("#Ubicacion").val(),
+                    Contacto: $("#Contacto").val(),
+                    Telefono: $("#Telefono").val(),
+                    Estado: $("#Estado").val() === "true"
+                };
+
+                $.ajax({
+                    url: "/Fundos/Guardar",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(fundo),
+                    success: function (response) {
+                        if (response.respuesta) {
+                            Swal.fire("Éxito", response.mensaje, "success");
+                            tabla.ajax.reload();
+                            $("#modalFundo").modal("hide");
+                        } else {
+                            Swal.fire("Error", response.mensaje, "error");
+                        }
+                    }
+                });
+            });
+
+            $("#tbFundos tbody").on("click", ".btn-editar", function () {
+                var data = tabla.row($(this).parents("tr")).data();
+                $("#FundoID").val(data.fundoID);
+                $("#NombreFundo").val(data.nombreFundo);
+                $("#Ubicacion").val(data.ubicacion);
+                $("#Contacto").val(data.contacto);
+                $("#Telefono").val(data.telefono);
+                $("#Estado").val(data.estado === "Activo" ? "true" : "false");
+                $("#modalFundo").modal("show");
+            });
+
+            $("#tbFundos tbody").on("click", ".btn-eliminar", function () {
+                var data = tabla.row($(this).parents("tr")).data();
+
+                Swal.fire({
+                    title: `¿Está seguro de eliminar el fundo "${data.nombreFundo}"?`,
+                    text: "Esta acción no se puede deshacer.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Sí, eliminar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/Fundos/Eliminar?id=${data.fundoID}`,
+                            type: "DELETE",
+                            success: function (response) {
+                                if (response.respuesta) {
+                                    Swal.fire("Eliminado", response.mensaje, "success");
+                                    tabla.ajax.reload();
+                                } else {
+                                    Swal.fire("Error", response.mensaje, "error");
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            function limpiarFormulario() {
+                $("#FundoID").val(0);
+                $("#NombreFundo").val("");
+                $("#Ubicacion").val("");
+                $("#Contacto").val("");
+                $("#Telefono").val("");
+                $("#Estado").val("true");
+            }
+        });
+    </script>
+}

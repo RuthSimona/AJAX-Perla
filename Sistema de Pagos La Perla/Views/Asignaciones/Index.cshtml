@@ -1,0 +1,234 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Asignaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Gestión</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Asignaciones</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>Lista de Asignaciones</h5>
+            <button class="btn btn-success" id="btnNuevo">Crear nueva asignación</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tbAsignaciones" class="table table-striped w-100">
+            <thead>
+                <tr>
+                    <th>Tarea</th>
+                    <th>Fundo</th>
+                    <th>Turno</th>
+                    <th>Tarifa</th>
+                    <th>Fecha de Asignación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Asignaciones -->
+<div id="modalAsignacion" class="modal fade" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle Asignación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAsignacion" novalidate>
+                    <input id="AsignacionID" type="hidden" value="0" />
+                    <div class="mb-3">
+                        <label for="Tarea" class="form-label">Tarea</label>
+                        <input type="text" id="Tarea" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="FundoID" class="form-label">Fundo</label>
+                        <div class="input-group">
+                            <input type="text" id="FundoNombre" class="form-control" readonly placeholder="Seleccionar fundo" required />
+                            <button type="button" class="btn btn-outline-secondary" id="btnBuscarFundo">🔍</button>
+                        </div>
+                        <input type="hidden" id="FundoID" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Turno" class="form-label">Turno</label>
+                        <input type="text" id="Turno" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Tarifa" class="form-label">Tarifa</label>
+                        <input type="number" id="Tarifa" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="FechaAsignacion" class="form-label">Fecha de Asignación</label>
+                        <input type="date" id="FechaAsignacion" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Descripcion" class="form-label">Descripción</label>
+                        <textarea id="Descripcion" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Estado" class="form-label">Estado</label>
+                        <select id="Estado" class="form-control">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para buscar Fundo -->
+<div id="modalFundos" class="modal fade" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Seleccionar Fundo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table id="tbFundos" class="table table-striped w-100">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Ubicación</th>
+                            <th>Contacto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var tablaAsignaciones = $("#tbAsignaciones").DataTable({
+                ajax: {
+                    url: "/Asignaciones/ListaAsignaciones",
+                    type: "GET",
+                    datatype: "json"
+                },
+                columns: [
+                    { data: "tarea" },
+                    { data: "fundoNombre" },
+                    { data: "turno" },
+                    { data: "tarifa" },
+                    { data: "fechaAsignacion" },
+                    {
+                        data: "estado",
+                        render: function (data) {
+                            return data === "Activo"
+                                ? '<span class="text-success">✔</span>'
+                                : '<span class="text-danger">✘</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function () {
+                            return `
+                                        <button class="btn btn-primary btn-sm btn-editar">Editar</button>
+                                        <button class="btn btn-danger btn-sm btn-eliminar">Eliminar</button>`;
+                        }
+                    }
+                ],
+                language: { url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json" }
+            });
+
+            var tablaFundos = $("#tbFundos").DataTable({
+                ajax: {
+                    url: "/Asignaciones/ListaFundos",
+                    type: "GET",
+                    datatype: "json"
+                },
+                columns: [
+                    { data: "nombreFundo" },
+                    { data: "ubicacion" },
+                    { data: "contacto" },
+                    {
+                        data: null,
+                        render: function (data) {
+                            return `<button class="btn btn-sm btn-select">Seleccionar</button>`;
+                        }
+                    }
+                ]
+            });
+
+            $("#btnNuevo").on("click", function () {
+                limpiarFormulario();
+                $("#modalAsignacion").modal("show");
+            });
+
+            $("#btnBuscarFundo").on("click", function () {
+                $("#modalFundos").modal("show");
+            });
+
+            $("#tbFundos tbody").on("click", ".btn-select", function () {
+                var data = tablaFundos.row($(this).parents("tr")).data();
+                $("#FundoID").val(data.fundoID);
+                $("#FundoNombre").val(data.nombreFundo);
+                $("#modalFundos").modal("hide");
+            });
+
+            $("#btnGuardar").on("click", function () {
+                var asignacion = {
+                    AsignacionID: $("#AsignacionID").val(),
+                    Tarea: $("#Tarea").val(),
+                    FundoID: $("#FundoID").val(),
+                    Turno: $("#Turno").val(),
+                    Tarifa: $("#Tarifa").val(),
+                    FechaAsignacion: $("#FechaAsignacion").val(),
+                    Descripcion: $("#Descripcion").val(),
+                    Estado: $("#Estado").val() === "true" ? true : false
+                };
+
+                $.ajax({
+                    url: "/Asignaciones/Guardar",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(asignacion),
+                    success: function (response) {
+                        if (response.respuesta) {
+                            tablaAsignaciones.ajax.reload();
+                            $("#modalAsignacion").modal("hide");
+                        } else {
+                            alert(response.mensaje);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error en la operación");
+                    }
+                });
+            });
+        });
+
+        function limpiarFormulario() {
+            $("#AsignacionID").val(0);
+            $("#Tarea").val("");
+            $("#FundoID").val("");
+            $("#FundoNombre").val("");
+            $("#Turno").val("");
+            $("#Tarifa").val("");
+            $("#FechaAsignacion").val("");
+            $("#Descripcion").val("");
+            $("#Estado").val("true");
+        }
+    </script>
+    }

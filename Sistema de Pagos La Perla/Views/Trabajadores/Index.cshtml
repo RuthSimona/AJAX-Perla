@@ -1,0 +1,240 @@
+﻿@{
+    ViewData["Title"] = "Gestión de Trabajadores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Gestión</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Trabajadores</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header">
+        Lista de Trabajadores
+    </div>
+    <div class="card-body">
+        <button class="btn btn-success mb-3" id="btnNuevo">Crear Nuevo</button>
+
+        <!-- Filtros debajo de cada columna -->
+        <div class="table-responsive">
+            <table id="tbTrabajadores" class="table table-bordered table-striped w-100">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nombre <i class="bi bi-x-circle" id="clearNameFilter" style="cursor: pointer;"></i></th>
+                        <th>RUT <i class="bi bi-x-circle" id="clearRutFilter" style="cursor: pointer;"></i></th>
+                        <th>Fecha Nacimiento</th>
+                        <th>Fecha Registro</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    <tr class="filters">
+                        <th><input type="text" id="searchNombre" class="form-control form-control-sm" placeholder="Buscar Nombre" /></th>
+                        <th><input type="text" id="searchRut" class="form-control form-control-sm" placeholder="Buscar RUT" /></th>
+                        <th><input type="date" id="searchFechaNacimiento" class="form-control form-control-sm" /></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear/Editar Trabajadores -->
+<div id="modalTrabajador" class="modal fade" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle Trabajador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTrabajador" novalidate>
+                    <input id="TrabajadorID" type="hidden" value="0" />
+                    <div class="mb-3">
+                        <label for="Nombre" class="form-label">Nombre</label>
+                        <input type="text" id="Nombre" class="form-control" required />
+                        <div class="invalid-feedback">El nombre es obligatorio.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Rut" class="form-label">RUT</label>
+                        <input type="text" id="Rut" class="form-control" required />
+                        <div class="invalid-feedback">El RUT es obligatorio.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="FechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                        <input type="date" id="FechaNacimiento" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Estado" class="form-label">Estado</label>
+                        <select id="Estado" class="form-control">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardar" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            var tabla = $("#tbTrabajadores").DataTable({
+                ajax: {
+                    url: "/Trabajadores/ListaTrabajadores",
+                    type: "GET",
+                    datatype: "json"
+                },
+                columns: [
+                    { data: "nombre" },
+                    { data: "rut" },
+                    { data: "fechaNacimiento" },
+                    { data: "fechaRegistro" },
+                    {
+                        data: "estado",
+                        render: function (data) {
+                            return data === "Activo"
+                                ? '<span class="text-success">✔</span>'
+                                : '<span class="text-danger">✘</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return `
+                                        <button class="btn btn-primary btn-sm btn-editar">Editar</button>
+                                        <button class="btn btn-danger btn-sm btn-eliminar">Eliminar</button>
+                                    `;
+                        }
+                    }
+                ],
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+                }
+            });
+
+            // Filtros por Nombre
+            $("#searchNombre").on("keyup", function () {
+                tabla.columns(0).search(this.value).draw();
+            });
+
+            // Filtros por RUT
+            $("#searchRut").on("keyup", function () {
+                tabla.columns(1).search(this.value).draw();
+            });
+
+            // Filtros por Fecha Nacimiento
+            $("#searchFechaNacimiento").on("change", function () {
+                tabla.columns(2).search(this.value).draw();
+            });
+
+            // Limpiar filtro de Nombre
+            $("#clearNameFilter").on("click", function () {
+                $("#searchNombre").val('');
+                tabla.columns(0).search('').draw();
+            });
+
+            // Limpiar filtro de RUT
+            $("#clearRutFilter").on("click", function () {
+                $("#searchRut").val('');
+                tabla.columns(1).search('').draw();
+            });
+
+            // Crear nuevo trabajador
+            $("#btnNuevo").on("click", function () {
+                limpiarFormulario();
+                $("#modalTrabajador").modal("show");
+            });
+
+            // Guardar trabajador
+            $("#btnGuardar").on("click", function () {
+                var trabajador = {
+                    TrabajadorID: $("#TrabajadorID").val(),
+                    Nombre: $("#Nombre").val(),
+                    Rut: $("#Rut").val(),
+                    FechaNacimiento: $("#FechaNacimiento").val(),
+                    Estado: $("#Estado").val() === "true"
+                };
+
+                $.ajax({
+                    url: "/Trabajadores/Guardar",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(trabajador),
+                    success: function (response) {
+                        if (response.respuesta) {
+                            Swal.fire("Éxito", response.mensaje, "success");
+                            tabla.ajax.reload();
+                            $("#modalTrabajador").modal("hide");
+                        } else {
+                            Swal.fire("Error", response.mensaje, "error");
+                        }
+                    }
+                });
+            });
+
+            // Editar trabajador
+            $("#tbTrabajadores tbody").on("click", ".btn-editar", function () {
+                var data = tabla.row($(this).parents("tr")).data();
+                $("#TrabajadorID").val(data.trabajadorID);
+                $("#Nombre").val(data.nombre);
+                $("#Rut").val(data.rut);
+                $("#FechaNacimiento").val(data.fechaNacimiento.split("/").reverse().join("-"));
+                $("#Estado").val(data.estado === "Activo" ? "true" : "false");
+                $("#modalTrabajador").modal("show");
+            });
+
+            // Eliminar trabajador
+            $("#tbTrabajadores tbody").on("click", ".btn-eliminar", function () {
+                var data = tabla.row($(this).parents("tr")).data();
+
+                Swal.fire({
+                    title: `¿Está seguro de eliminar a "${data.nombre}"?`,
+                    text: "Esta acción no se puede deshacer.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Sí, eliminar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/Trabajadores/Eliminar?id=${data.trabajadorID}`,
+                            type: "DELETE",
+                            success: function (response) {
+                                if (response.respuesta) {
+                                    Swal.fire("Eliminado", response.mensaje, "success");
+                                    tabla.ajax.reload();
+                                } else {
+                                    Swal.fire("Error", response.mensaje, "error");
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Limpiar formulario
+            function limpiarFormulario() {
+                $("#TrabajadorID").val(0);
+                $("#Nombre").val("");
+                $("#Rut").val("");
+                $("#FechaNacimiento").val("");
+                $("#Estado").val("true");
+            }
+        });
+    </script>
+}
